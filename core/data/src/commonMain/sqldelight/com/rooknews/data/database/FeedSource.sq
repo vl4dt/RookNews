@@ -1,0 +1,40 @@
+CREATE TABLE feed_source (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    url TEXT NOT NULL,
+    feed_url TEXT NOT NULL,
+    category TEXT NOT NULL,
+    region TEXT,
+    language TEXT NOT NULL DEFAULT 'en',
+    enabled INTEGER NOT NULL DEFAULT 1,
+    last_fetched INTEGER
+);
+
+CREATE INDEX idx_feed_source_enabled ON feed_source(enabled);
+
+selectAllFeeds:
+SELECT * FROM feed_source;
+
+selectEnabledFeeds:
+SELECT * FROM feed_source
+WHERE enabled = 1;
+
+selectFeedById:
+SELECT * FROM feed_source
+WHERE id = :id;
+
+insertFeed:
+INSERT OR REPLACE INTO feed_source (
+    id, title, url, feed_url, category, region, language, enabled, last_fetched
+) VALUES (
+    :id, :title, :url, :feedUrl, :category, :region, :language, :enabled, :lastFetched
+);
+
+updateFeedEnabled:
+UPDATE feed_source SET enabled = :enabled WHERE id = :id;
+
+updateFeedLastFetched:
+UPDATE feed_source SET last_fetched = :lastFetched WHERE id = :id;
+
+deleteFeed:
+DELETE FROM feed_source WHERE id = :id;

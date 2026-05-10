@@ -1,0 +1,29 @@
+CREATE TABLE briefing (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content_markdown TEXT NOT NULL,
+    generated_at INTEGER NOT NULL,
+    type TEXT NOT NULL,
+    article_ids TEXT NOT NULL DEFAULT '[]',
+    reading_time_minutes INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX idx_briefing_generated ON briefing(generated_at);
+
+selectAllBriefings:
+SELECT * FROM briefing
+ORDER BY generated_at DESC;
+
+selectBriefingById:
+SELECT * FROM briefing
+WHERE id = :id;
+
+insertBriefing:
+INSERT INTO briefing (
+    id, title, content_markdown, generated_at, type, article_ids, reading_time_minutes
+) VALUES (
+    :id, :title, :contentMarkdown, :generatedAt, :type, :articleIds, :readingTimeMinutes
+);
+
+deleteBriefing:
+DELETE FROM briefing WHERE id = :id;
