@@ -73,7 +73,7 @@ class SqlDelightArticleRepository : ArticleRepository {
         queries.deleteOldArticles(beforeDate)
     }
 
-    suspend fun insertArticle(article: Article) = withContext(Dispatchers.IO) {
+    override suspend fun insertArticle(article: Article) = withContext(Dispatchers.IO) {
         queries.insertArticle(
             id = article.id,
             feedSourceId = article.feedSourceId,
@@ -94,7 +94,19 @@ class SqlDelightArticleRepository : ArticleRepository {
         )
     }
 
-    suspend fun insertArticles(articles: List<Article>) = withContext(Dispatchers.IO) {
+    override suspend fun insertArticles(articles: List<Article>) = withContext(Dispatchers.IO) {
         articles.forEach { insertArticle(it) }
+    }
+
+    override suspend fun clearAllArticles() = withContext(Dispatchers.IO) {
+        queries.clearAllArticles()
+    }
+
+    override suspend fun deleteUnbookmarkedOldArticles(beforeDate: Long) = withContext(Dispatchers.IO) {
+        queries.deleteUnbookmarkedOldArticles(beforeDate)
+    }
+
+    override suspend fun deleteUnbookmarkedArticles() = withContext(Dispatchers.IO) {
+        queries.deleteUnbookmarkedArticles()
     }
 }

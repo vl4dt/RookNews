@@ -19,6 +19,8 @@ import com.rooknews.domain.model.Article
 import com.rooknews.domain.model.ReadingMode
 import com.rooknews.domain.repository.PreferencesRepository
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
@@ -27,13 +29,28 @@ fun App() {
     var readingMode by remember { mutableStateOf(ReadingMode.LIGHT) }
     var preferredProvider by remember { mutableStateOf(AiProvider.LOCAL) }
 
+    var retentionDays by remember { mutableIntStateOf(90) }
+
     LaunchedEffect(Unit) {
         preferencesRepo.preferencesFlow
             .catch { /* use default */ }
             .collect { prefs ->
                 readingMode = prefs.readingMode
                 preferredProvider = prefs.preferredProvider
+                retentionDays = prefs.articleRetentionDays
             }
+    }
+
+    // Auto-cleanup old non-bookmarked articles on app start
+    val articleRepo: com.rooknews.domain.repository.ArticleRepository = koinInject()
+    LaunchedEffect(Unit) {
+        val prefs = preferencesRepo.preferencesFlow
+            .catch { emit(com.rooknews.domain.model.UserPreferences()) }
+            .first()
+        if (prefs.articleRetentionDays > 0) {
+            val cutoff = System.currentTimeMillis() - (prefs.articleRetentionDays * 86_400_000L)
+            articleRepo.deleteUnbookmarkedOldArticles(cutoff)
+        }
     }
 
     RookNewsTheme(readingMode = readingMode) {

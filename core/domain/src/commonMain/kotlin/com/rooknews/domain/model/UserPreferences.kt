@@ -12,8 +12,11 @@ data class UserPreferences(
     val briefingTime: String = "07:00",
     val syncIntervalMinutes: Int = 30,
     val maxArticlesPerFeed: Int = 50,
+    val articleRetentionDays: Int = 90,
     val language: String = "en",
-    val region: String? = null
+    val region: String? = null,
+    val cloudApiKey: String = "",
+    val preferredProvider: AiProvider = AiProvider.LOCAL
 )
 
 enum class ReadingMode(val displayName: String) {

@@ -80,5 +80,16 @@ UPDATE article SET bookmarked = :isBookmarked WHERE id = :id;
 deleteOldArticles:
 DELETE FROM article WHERE fetched_at < :beforeDate;
 
+deleteUnbookmarkedOldArticles:
+DELETE FROM article
+WHERE fetched_at < :beforeDate AND bookmarked = 0;
+
+deleteUnbookmarkedArticles:
+DELETE FROM article
+WHERE bookmarked = 0;
+
+clearAllArticles:
+DELETE FROM article;
+
 countArticles:
 SELECT COUNT(*) FROM article;
