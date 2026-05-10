@@ -8,11 +8,13 @@ import androidx.compose.ui.unit.dp
 import com.rooknews.app.navigation.Tab
 import com.rooknews.app.screens.briefings.BriefingsScreen
 import com.rooknews.app.screens.feeds.FeedsScreen
+import com.rooknews.app.screens.feeds.rememberFeedsViewModel
 import com.rooknews.app.screens.home.HomeScreen
 import com.rooknews.app.screens.research.ResearchScreen
 import com.rooknews.app.screens.settings.SettingsScreen
 import com.rooknews.app.screens.article.ArticleDetailScreen
 import com.rooknews.app.ui.theme.RookNewsTheme
+import com.rooknews.domain.model.AiProvider
 import com.rooknews.domain.model.Article
 import com.rooknews.domain.model.ReadingMode
 import com.rooknews.domain.repository.PreferencesRepository
@@ -23,11 +25,15 @@ import org.koin.compose.koinInject
 fun App() {
     val preferencesRepo: PreferencesRepository = koinInject()
     var readingMode by remember { mutableStateOf(ReadingMode.LIGHT) }
+    var preferredProvider by remember { mutableStateOf(AiProvider.LOCAL) }
 
     LaunchedEffect(Unit) {
         preferencesRepo.preferencesFlow
             .catch { /* use default */ }
-            .collect { prefs -> readingMode = prefs.readingMode }
+            .collect { prefs ->
+                readingMode = prefs.readingMode
+                preferredProvider = prefs.preferredProvider
+            }
     }
 
     RookNewsTheme(readingMode = readingMode) {
@@ -36,15 +42,20 @@ fun App() {
             color = RookNewsTheme.colors.background,
             contentColor = RookNewsTheme.colors.onBackground
         ) {
-            AppContent()
+            AppContent(
+                preferredProvider = preferredProvider
+            )
         }
     }
 }
 
 @Composable
-private fun AppContent() {
+private fun AppContent(
+    preferredProvider: AiProvider
+) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var articleDetailId by remember { mutableStateOf<String?>(null) }
+    val feedsViewModel = rememberFeedsViewModel()
 
     val tabs = Tab.entries.toTypedArray()
     val selectedTab = tabs.getOrNull(selectedTabIndex) ?: Tab.HOME
@@ -61,7 +72,9 @@ private fun AppContent() {
                             selected = selectedTabIndex == index,
                             onClick = { selectedTabIndex = index },
                             label = { Text(tab.title, style = RookNewsTheme.typography.labelSmall) },
-                            icon = { Text(tabIcon(tab), style = RookNewsTheme.typography.headlineMedium) },
+                            icon = {
+                                Text(tabIcon(tab), style = RookNewsTheme.typography.headlineMedium)
+                            },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = RookNewsTheme.colors.primary,
                                 selectedTextColor = RookNewsTheme.colors.primary,
@@ -85,7 +98,8 @@ private fun AppContent() {
             } else {
                 when (selectedTab) {
                     Tab.HOME -> HomeScreen(
-                        onArticleClicked = { article -> articleDetailId = article.id }
+                        onArticleClicked = { article -> articleDetailId = article.id },
+                        onSyncFeeds = { feedsViewModel.onSync() }
                     )
                     Tab.FEEDS -> FeedsScreen()
                     Tab.BRIEFINGS -> BriefingsScreen()

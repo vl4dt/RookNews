@@ -52,13 +52,21 @@ class RssParser {
 
             val articleId = guid ?: generateId(feedSourceId, title)
 
+            // Use content:encoded or content for full body; fall back to description
+            val fullBody = content?.let { stripHtml(it) }?.takeIf { it.isNotBlank() }
+                ?: description?.let { stripHtml(it) }.orEmpty()
+
+            // Summary is a shorter excerpt from description (or body if description is too long)
+            val summaryText = description?.let { stripHtml(it) }.orEmpty()
+            val summary = if (summaryText.length > 500) summaryText.take(500) else summaryText.takeIf { it.isNotBlank() }
+
             out.add(
                 Article(
                     id = sanitizeId(articleId),
                     feedSourceId = feedSourceId,
                     title = stripHtml(title),
-                    summary = stripHtml(description)?.take(500),
-                    bodyMarkdown = stripHtml(content) ?: stripHtml(description),
+                    summary = summary,
+                    bodyMarkdown = fullBody.takeIf { it.isNotBlank() },
                     author = stripHtml(author),
                     publishedAt = parseDate(pubDateStr),
                     fetchedAt = System.currentTimeMillis(),
@@ -88,13 +96,20 @@ class RssParser {
 
             val articleId = id ?: generateId(feedSourceId, title)
 
+            // Use content for full body; fall back to summary (Atom's summary tag)
+            val fullBody = content?.let { stripHtml(it) }?.takeIf { it.isNotBlank() }
+                ?: summary?.let { stripHtml(it) }.orEmpty()
+
+            val summaryText = summary?.let { stripHtml(it) }.orEmpty()
+            val atomSummary = if (summaryText.length > 500) summaryText.take(500) else summaryText.takeIf { it.isNotBlank() }
+
             out.add(
                 Article(
                     id = sanitizeId(articleId),
                     feedSourceId = feedSourceId,
                     title = stripHtml(title),
-                    summary = stripHtml(summary)?.take(500),
-                    bodyMarkdown = stripHtml(content) ?: stripHtml(summary),
+                    summary = atomSummary,
+                    bodyMarkdown = fullBody.takeIf { it.isNotBlank() },
                     author = stripHtml(author),
                     publishedAt = parseDate(updatedStr),
                     fetchedAt = System.currentTimeMillis(),
