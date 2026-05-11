@@ -27,9 +27,9 @@ kotlin {
             implementation(compose.materialIconsExtended)
 
             implementation(libs.bundles.koin)
-            implementation(libs.bundles.decompose)
             implementation(libs.bundles.ktor)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.lifecycle.viewmodel.compose.kmp)
             // implementation(libs.markdown) // compose-markdown not yet published — WebView fallback for now
 
             implementation(project(":core:data"))

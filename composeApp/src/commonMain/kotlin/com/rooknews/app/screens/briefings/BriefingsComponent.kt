@@ -1,6 +1,9 @@
 package com.rooknews.app.screens.briefings
 
 import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rooknews.domain.model.AiProvider
 import com.rooknews.domain.model.Briefing
 import com.rooknews.domain.model.BriefingType
 import com.rooknews.domain.repository.AiRepository
@@ -14,26 +17,34 @@ private fun generateId(): String = "${System.currentTimeMillis()}-${(1..6).map {
 @Composable
 fun rememberBriefingsViewModel(
     briefingRepository: BriefingRepository = koinInject(),
-    aiRepository: AiRepository = koinInject()
+    aiRepository: AiRepository = koinInject(),
+    preferredProvider: AiProvider = AiProvider.LOCAL
 ): BriefingsViewModel {
-    val vm = remember { BriefingsViewModel(briefingRepository, aiRepository) }
+    val vm = remember { BriefingsViewModel(briefingRepository, aiRepository, preferredProvider) }
     LaunchedEffect(Unit) { vm.loadBriefings() }
     return vm
 }
 
 class BriefingsViewModel(
     private val briefingRepository: BriefingRepository,
-    private val aiRepository: AiRepository
-) {
-    private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob())
-
+    private val aiRepository: AiRepository,
+    private val preferredProvider: AiProvider = AiProvider.LOCAL
+) : ViewModel() {
     var briefings by mutableStateOf<List<Briefing>>(emptyList())
+        private set
     var isLoading by mutableStateOf(true)
+        private set
     var isGenerating by mutableStateOf(false)
+        private set
     var error by mutableStateOf<String?>(null)
+        private set
+
+    init {
+        loadBriefings()
+    }
 
     fun loadBriefings() {
-        scope.launch {
+        viewModelScope.launch {
             isLoading = true
             error = null
             briefingRepository.getBriefingsFlow()
@@ -50,15 +61,15 @@ class BriefingsViewModel(
     }
 
     fun onDeleteBriefing(id: String) {
-        scope.launch { briefingRepository.deleteBriefing(id) }
+        viewModelScope.launch { briefingRepository.deleteBriefing(id) }
     }
 
     fun onGenerateBriefing(topic: String? = null) {
         isGenerating = true
         error = null
-        scope.launch {
+        viewModelScope.launch {
             try {
-                val aiResult = aiRepository.generateBriefing(topic)
+                val aiResult = aiRepository.generateBriefing(topic, preferredProvider)
                 if (aiResult.success && aiResult.output != null) {
                     val briefing = Briefing(
                         id = generateId(),
@@ -69,6 +80,7 @@ class BriefingsViewModel(
                         readingTimeMinutes = estimateReadingTime(aiResult.output!!)
                     )
                     briefingRepository.insertBriefing(briefing)
+                    loadBriefings() // Reload to show new briefing
                 } else {
                     error = aiResult.errorMessage ?: "Briefing generation failed"
                 }

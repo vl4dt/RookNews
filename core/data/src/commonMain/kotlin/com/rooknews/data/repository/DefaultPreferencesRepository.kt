@@ -8,7 +8,10 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * In-memory preferences repository backed by StateFlow.
- * Persists to Okio file storage on platform-specific init.
+ * Persistence to file storage is planned for a future release.
+ * 
+ * On Android, preferences are persisted via Android SharedPreferences
+ * in the Android-specific actual implementation.
  */
 class DefaultPreferencesRepository : PreferencesRepository {
 
@@ -21,6 +24,6 @@ class DefaultPreferencesRepository : PreferencesRepository {
 
     override suspend fun updatePreferences(preferences: UserPreferences) {
         _preferences.value = preferences
-        // TODO: persist to Okio file storage
+        // TODO: persist to file storage using Okio + kotlinx.serialization
     }
 }

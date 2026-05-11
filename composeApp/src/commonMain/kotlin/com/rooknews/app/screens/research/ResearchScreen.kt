@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rooknews.app.ui.markdown.MarkdownText
 import com.rooknews.app.ui.theme.RookNewsTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,11 +113,9 @@ fun ResearchScreen(
                             Spacer(modifier = Modifier.height(12.dp))
                             HorizontalDivider(color = colors.outlineVariant)
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                viewModel.result!!.output ?: "No result",
-                                style = typography.bodyLarge,
-                                color = colors.onSurface,
-                                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+                            MarkdownText(
+                                markdown = viewModel.result!!.output ?: "No result",
+                                modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text("Processed in ${viewModel.result!!.processingTimeMs}ms", style = typography.labelSmall, color = colors.onSurfaceVariant)

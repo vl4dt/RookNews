@@ -52,6 +52,10 @@ class DefaultFeedRepository : FeedRepository {
         queries.updateFeedEnabled(if (enabled) 1L else 0L, feedId)
     }
 
+    override suspend fun updateFeedLastFetched(feedId: String, timestamp: Long) = withContext(Dispatchers.IO) {
+        queries.updateFeedLastFetched(timestamp, feedId)
+    }
+
     override suspend fun syncFeeds(): SyncResult {
         return SyncResult(success = false, 0, 0)
     }

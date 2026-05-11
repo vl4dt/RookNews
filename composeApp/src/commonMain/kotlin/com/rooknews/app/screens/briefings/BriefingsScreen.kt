@@ -13,7 +13,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rooknews.app.ui.theme.RookNewsTheme
 import com.rooknews.domain.model.Briefing
-import com.rooknews.domain.model.AiProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

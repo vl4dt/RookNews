@@ -9,6 +9,7 @@ interface FeedRepository {
     suspend fun addFeed(feed: FeedSource)
     suspend fun removeFeed(feedId: String)
     suspend fun toggleFeed(feedId: String, enabled: Boolean)
+    suspend fun updateFeedLastFetched(feedId: String, timestamp: Long)
     suspend fun syncFeeds(): SyncResult
     suspend fun getBuiltInCatalog(): List<FeedSource>
 }

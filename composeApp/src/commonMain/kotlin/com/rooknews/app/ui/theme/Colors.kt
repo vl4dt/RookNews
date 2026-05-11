@@ -16,11 +16,11 @@ val Amber100 = Color(0xFFFEEEBA)
 val Amber200 = Color(0xFFFED68D)
 val Amber300 = Color(0xFFFDB84E)
 val Amber400 = Color(0xFFF79009)
-val Amber500 = Color(0xFC7900)
-val Amber600 = Color(0xCA5900)
-val Amber700 = Color(0x994409)
-val Amber800 = Color(0x76340A)
-val Amber900 = Color(0x5B2709)
+val Amber500 = Color(0xFFFC7900)
+val Amber600 = Color(0xFFCA5900)
+val Amber700 = Color(0xFF994409)
+val Amber800 = Color(0xFF76340A)
+val Amber900 = Color(0xFF5B2709)
 
 // -- Light mode --
 object LightColors {
